@@ -199,10 +199,8 @@ uint16_t FGCOLOR=0xFFF1; // placeholder
 // 21 - Deauth Attack
 // 22 - Custom Color Settings
 // 23 - Pre-defined color themes
-// 24 - Bad USB
-// 25 - Bad USB Wifi Scan
-// 26 - Bad USB Wifi scan results
-// 27 - Run Payload 0
+// 24 - Bad USB / Layouts
+// 25 - Bad USB / Payloads
 // .. - ..
 // 97 - Mount/UnMount SD Card on M5Stick devices, if SDCARD is declared
 
@@ -219,7 +217,8 @@ const String contributors[] PROGMEM = {
   "@niximkk",
   "@unagironin",
   "@vladimirpetrov",
-  "@vs4vijay"
+  "@vs4vijay",
+  "@usg-ishimura"
 };
 
 int advtime = 0; 
@@ -1897,14 +1896,40 @@ void btmaelstrom_loop(){
 
 /// BAD USB MENU ///
 
-void bumenu_setup() {
+// Layouts
+
+void bumenu_setup() { // 24
+  cursor = 0;
+  rstOverride = true;
+  drawmenuLO();
+  delay(500); // Prevent switching after menu loads up
+}
+
+void bumenu_loop() {  // 24
+  if (check_next_press()) {
+    cursor++;
+    cursor = cursor % layouts_size;
+    drawmenuLO();
+    delay(250);
+  }
+  if (check_select_press()) {
+    int option = layouts[cursor].command;
+    rstOverride = true;
+    isSwitching = false;
+    layouts_menu(option);
+  }
+}
+
+// Payloads
+
+void bumenu_payld_setup() { // 25
   cursor = 0;
   rstOverride = true;
   drawmenuL();
   delay(500); // Prevent switching after menu loads up
 }
 
-void bumenu_loop() {
+void bumenu_payld_loop() { // 25
   if (check_next_press()) {
     cursor++;
     cursor = cursor % bumenu_size;
@@ -1913,20 +1938,9 @@ void bumenu_loop() {
   }
   if (check_select_press()) {
     int option = bumenu[cursor].command;
-    rstOverride = false;
-    isSwitching = true;
-    switch(option) {
-      case 0:
-        current_proc = 1;
-        break;
-      case 1:
-        rootPayload0();
-        break;
-      default:
-        rstOverride = true;
-        isSwitching = false;
-        payloads_menu(option);
-    }
+    rstOverride = true;
+    isSwitching = false;
+    payloads_menu(option);
   }
 }
 
@@ -2586,13 +2600,7 @@ void loop() {
           bumenu_setup();
           break;
         case 25:
-          busb_setup();
-          break;
-        case 26:
-          busb_result_setup();
-          break;
-        case 27:
-          run_payload_setup();
+          bumenu_payld_setup();
     }
   }
 
@@ -2685,16 +2693,10 @@ void loop() {
         theme_loop();
         break;
       case 24:
-        bumenu_loop();
-        break;
+          bumenu_loop();
+          break;
       case 25:
-        busb_loop();
-        break;
-      case 26:
-        busb_result_loop();
-        break;
-      case 27:
-        run_payload_loop();
+          bumenu_payld_loop();
     #if defined(SDCARD)                                                // SDCARD M5Stick
       #ifndef CARDPUTER                                                // SDCARD M5Stick
         case 97:
