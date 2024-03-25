@@ -429,7 +429,9 @@ MENU mmenu[] = {
   { "TV-B-Gone", 13}, // We jump to the region menu first
   { "Bluetooth", 16},
   { "WiFi", 12},
+#if defined(CARDPUTER)
   { "Bad USB", 24},
+#endif
   { "QR Codes", 18},
   { TXT_SETTINGS, 2},
 };
