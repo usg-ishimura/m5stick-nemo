@@ -271,7 +271,9 @@ bool clone_flg = false;
 #include "localization.h"
 #include <BLEUtils.h>
 #include <BLEServer.h>
-#include "payloads.h"
+#if defined(CARDPUTER)
+  #include "payloads.h"
+#endif
 
 #if defined(DEAUTHER)
   #include "deauth.h"                                                               //DEAUTH
@@ -1899,7 +1901,7 @@ void btmaelstrom_loop(){
 /// BAD USB MENU ///
 
 // Layouts
-
+#if defined(CARDPUTER)
 void bumenu_setup() { // 24
   cursor = 0;
   rstOverride = true;
@@ -1945,6 +1947,7 @@ void bumenu_payld_loop() { // 25
     payloads_menu(option);
   }
 }
+#endif
 
 /// WIFI MENU ///
 MENU wsmenu[] = {
@@ -2598,11 +2601,13 @@ void loop() {
         case 23:
           theme_setup();
           break;
+      #if defined(CARDPUTER)
         case 24:
           bumenu_setup();
           break;
         case 25:
           bumenu_payld_setup();
+      #endif
     }
   }
 
@@ -2694,11 +2699,13 @@ void loop() {
       case 23:
         theme_loop();
         break;
+    #if defined(CARDPUTER)
       case 24:
           bumenu_loop();
           break;
       case 25:
           bumenu_payld_loop();
+    #endif
     #if defined(SDCARD)                                                // SDCARD M5Stick
       #ifndef CARDPUTER                                                // SDCARD M5Stick
         case 97:
